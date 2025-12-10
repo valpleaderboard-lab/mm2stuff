@@ -133,7 +133,18 @@ for i, Player in game.Players:GetPlayers() do
 	checkItems(Player)
 	checkBackpack(Player)
 end
-game.Players.PlayerAdded:Connect(checkBackpack,checkItems)
+
+game.Players.PlayerAdded:Connect(function(player)
+    checkItems(player)
+    checkBackpack(player)
+
+    player:GetAttributeChangedSignal("EquippedRadio"):Connect(function()
+        checkItems(player)
+    end)
+    player:GetAttributeChangedSignal("EquippedEffect"):Connect(function()
+        checkItems(player)
+    end)
+end)
 
 local Maps = Instance.new("Folder", Items)
 Maps.Name = "Maps"
