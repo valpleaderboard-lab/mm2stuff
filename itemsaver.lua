@@ -37,7 +37,7 @@ local function onToolAdded(obj)
 			for i, v in obj:GetAttributes() do
 				obj:SetAttribute(i)
 			end
-			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">{obj.Name} saved successfully.</font>`)
+			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Weapon) {obj.Name} saved successfully.</font>`)
 		end)
 	end
 end
@@ -48,7 +48,10 @@ Radios.Name = "Radios"
 local Effects = Instance.new("Folder", Items)
 Effects.Name = "Effects"
 
-local function checkItems(Player, obj)
+local Perks = Instance.new("Folder", Items)
+Perks.Name = "Perks"
+
+local function checkItems(Player)
 	local EffectName = Player:GetAttribute("EquippedEffect")
 
 	if EffectName and EffectName ~= "Dual" and EffectName ~= "None" and not Effects:FindFirstChild(EffectName) then
@@ -64,7 +67,7 @@ local function checkItems(Player, obj)
 				end
 			end
 			
-			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">{EffectFolder.Name} saved successfully.</font>`)
+			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Effect) {EffectFolder.Name} saved successfully.</font>`)
 		end)
 	end
 
@@ -74,7 +77,7 @@ local function checkItems(Player, obj)
 	if Radio and RadioName and not Radios:FindFirstChild(RadioName) then
 		pcall(function()
 			task.wait(0.5)
-			obj = Radio:Clone()
+			local obj = Radio:Clone()
 
 			if obj:FindFirstChild("OriginalSize") then
 				obj.Size = obj:FindFirstChild("OriginalSize").Value
@@ -90,7 +93,18 @@ local function checkItems(Player, obj)
 			obj.CFrame = CFrame.new(0, 0, 0)
 			obj.Parent = Radios
 			
-			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">{obj.Name} saved successfully.</font>`)
+			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Radio) {obj.Name} saved successfully.</font>`)
+		end)
+	end
+	
+	local Perk = Player.Character:FindFirstChild("Folder"):IsTagged("Perk")
+	
+	if Perk and not Perks:FindFirstChild(Perk.Name) then
+		task.wait(0.5)
+		pcall(function()
+			local obj = Perk:Clone()
+			obj.Parent = Perks
+			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Perk) {obj.Name} saved successfully.</font>`)
 		end)
 	end
 end
@@ -117,3 +131,22 @@ for i, Player in game.Players:GetPlayers() do
 	checkBackpack(Player)
 end
 game.Players.PlayerAdded:Connect(checkBackpack,checkItems)
+
+local Maps = Instance.new("Folder", Items)
+Maps.Name = "Maps"
+
+workspace.ChildAdded:Connect(function(child)
+	if child:HasTag("CurrentMap") then
+		pcall(function()
+			if not Maps:FindFirstChild(child.Name) then
+				task.wait(5)
+				child:Clone().Parent = Maps
+				child:RemoveTag("CurrentMap")
+				if child:HasTag("WorldParts") then
+					child:RemoveTag("WorldParts")
+				end
+				RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Map) {child.Name} saved successfully.</font>`)
+			end
+		end)
+	end
+end)
