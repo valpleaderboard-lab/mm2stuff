@@ -18,7 +18,7 @@ local function onToolAdded(obj)
 					or (v:IsA("LuaSourceContainer") and v.Name == "KnifeServer" or v.Name == "KnifeLocal" or v.Name == "Maid" or v.Name == "FirstPerson" or v.Name == "KnifeClient")
 					or (v:IsA("Folder") and v.Name == "Animations")
 					or (v:IsA("RemoteEvent") and v.Name == "End" or v.Name == "Stab" or v.Name == "Throw")
-					or (v:IsA("BoolValue") and v.Name == "IsGun")
+					or (v:IsA("BoolValue") and v.Name == "IsGun" or v.Name == "DualEffect")
 					or v:IsA("TouchTransmitter")
 					or v:IsA("ParticleEmitter") then
 					v:Destroy()
