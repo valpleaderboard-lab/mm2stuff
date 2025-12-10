@@ -72,7 +72,8 @@ local function checkItems(Player)
 		end)
 	end
 
-	local Radio = Player.Character:FindFirstChild("Radio")
+	local character = Player.Character or Player.CharacterAdded:Wait()
+    local Radio = character:FindFirstChild("Radio")
 	local RadioName = Player:GetAttribute("EquippedRadio")
 
 	if Radio and RadioName and not Radios:FindFirstChild(RadioName) then
