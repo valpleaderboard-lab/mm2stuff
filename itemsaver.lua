@@ -1,4 +1,5 @@
 local TextChatService = game:GetService("TextChatService")
+local CollectionService = game:GetService("CollectionService")
 local RBXSystem = TextChatService.TextChannels.RBXSystem
 
 local Items = Instance.new("Folder", game.ReplicatedStorage)
@@ -97,7 +98,9 @@ local function checkItems(Player)
 		end)
 	end
 	
-	local Perk = Player.Character:FindFirstChild("Folder"):IsTagged("Perk")
+	local folder = Player.Character:FindFirstChild("Folder")
+	local Perk = folder and CollectionService:HasTag(folder, "Perk")
+
 	
 	if Perk and not Perks:FindFirstChild(Perk.Name) then
 		task.wait(0.5)
@@ -142,7 +145,7 @@ workspace.ChildAdded:Connect(function(child)
 				task.wait(5)
 				child:Clone().Parent = Maps
 				child:RemoveTag("CurrentMap")
-				if child:HasTag("WorldParts") then
+				if CollectionService:HasTag(child, "PerkWorldParts") then
 					child:RemoveTag("WorldParts")
 				end
 				RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Map) {child.Name} saved successfully.</font>`)
