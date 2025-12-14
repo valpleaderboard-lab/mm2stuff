@@ -374,7 +374,7 @@ local function VTFJZ_fake_script() -- SyncME_V2.LocalScript
 
 	getsyncmodule = repr 
 
-	for ModuleName, Module in pairs(game.ReplicatedStorage.Remotes.Events.GetEvents:InvokeServer()) do
+	for ModuleName, Module in pairs(game.ReplicatedStorage.GetSyncData:InvokeServer()) do
 		local ModuleFrame = Instance.new("Frame")
 		local UICorner = Instance.new("UICorner")
 		local TextLabel = Instance.new("TextLabel")
