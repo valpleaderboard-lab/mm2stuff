@@ -418,7 +418,7 @@ local function VTFJZ_fake_script() -- SyncME_V2.LocalScript
 
 		TextButton.MouseButton1Click:Connect(function()
 			local v1, v2 = pcall(function()
-				setclipboard(tostring("--[[ Decompiled with SyncME! V3. | @60nn13\n ModuleName: "..ModuleName.." ]] \n return "..getsyncmodule(Module)))
+				writefile(tostring("--[[ ModuleName: "..ModuleName.." ]] \n return "..getsyncmodule(Module)))
 			end)
 			if v1 then
 				script.Parent.Main.select.Text = "Decompiled!"
