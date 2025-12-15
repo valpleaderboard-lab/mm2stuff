@@ -14,18 +14,14 @@ local function onToolAdded(obj)
 			task.wait(0.5)
 			obj = obj:Clone()
 			for i, v in obj:GetDescendants() do
-				if (v:IsA("Sound") and v.Name == "Reload" or v.Name == "Gunshot") 
-					or (v:IsA("LuaSourceContainer") and v.Name == "KnifeServer" or v.Name == "KnifeLocal" or v.Name == "Maid" or v.Name == "FirstPerson" or v.Name == "KnifeClient")
-					or (v:IsA("Folder") and v.Name == "Animations")
+				if (v:IsA("Sound") and v.Name == "Reload" or v.Name == "Gunshot" or v.Name == "Kill" or v.Name == "Throw") 
+					or (v:IsA("LuaSourceContainer") and v.Name == "KnifeServer" or v.Name == "KnifeClient" or v.Name == "KnifeVisuals" or v.Name == "GunServer" or v.Name == "GunClient")
+					or (v:IsA("Folder") and v.Name == "Animations" or v.Name == "Sounds" or v.Name == "Events")
 					or (v:IsA("RemoteEvent") and v.Name == "End" or v.Name == "Stab" or v.Name == "Throw")
 					or (v:IsA("BoolValue") and v.Name == "IsGun" or v.Name == "DualEffect")
 					or v:IsA("TouchTransmitter")
 					or v:IsA("ParticleEmitter") then
 					v:Destroy()
-				end
-				if v:IsA("Decal") and v.Name == "Chroma" then
-					v:SetAttribute("ChromaLayer")
-					v.Color3 = Color3.fromRGB(255, 255, 255)
 				end
 			end
 
@@ -67,13 +63,13 @@ local function checkItems(Player)
 					v:Clone().Parent = EffectFolder
 				end
 			end
-			
+
 			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Effect) {EffectFolder.Name} saved successfully.</font>`)
 		end)
 	end
 
 	local character = Player.Character or Player.CharacterAdded:Wait()
-    local Radio = character:FindFirstChild("Radio")
+	local Radio = character:FindFirstChild("Radio")
 	local RadioName = Player:GetAttribute("EquippedRadio")
 
 	if Radio and RadioName and not Radios:FindFirstChild(RadioName) then
@@ -84,7 +80,7 @@ local function checkItems(Player)
 			if obj:FindFirstChild("OriginalSize") then
 				obj.Size = obj:FindFirstChild("OriginalSize").Value
 			end
-			
+
 			for i, v in obj:GetDescendants() do
 				if v:IsA("Sound") or v:IsA("Vector3Value") then
 					v:Destroy()
@@ -94,15 +90,15 @@ local function checkItems(Player)
 			obj.Name = RadioName
 			obj.CFrame = CFrame.new(0, 0, 0)
 			obj.Parent = Radios
-			
+
 			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Radio) {obj.Name} saved successfully.</font>`)
 		end)
 	end
-	
+
 	local folder = Player.Character:FindFirstChild("Folder")
 	local Perk = folder and CollectionService:HasTag(folder, "Perk")
 
-	
+
 	if Perk and not Perks:FindFirstChild(Perk.Name) then
 		task.wait(0.5)
 		pcall(function()
@@ -136,15 +132,15 @@ for i, Player in game.Players:GetPlayers() do
 end
 
 game.Players.PlayerAdded:Connect(function(player)
-    checkItems(player)
-    checkBackpack(player)
+	checkItems(player)
+	checkBackpack(player)
 
-    player:GetAttributeChangedSignal("EquippedRadio"):Connect(function()
-        checkItems(player)
-    end)
-    player:GetAttributeChangedSignal("EquippedEffect"):Connect(function()
-        checkItems(player)
-    end)
+	player:GetAttributeChangedSignal("EquippedRadio"):Connect(function()
+		checkItems(player)
+	end)
+	player:GetAttributeChangedSignal("EquippedEffect"):Connect(function()
+		checkItems(player)
+	end)
 end)
 
 local Maps = Instance.new("Folder", Items)
