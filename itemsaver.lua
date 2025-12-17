@@ -160,4 +160,19 @@ workspace.ChildAdded:Connect(function(child)
 			end
 		end)
 	end
+	for i, object in Maps:GetDescendants() do
+		if object:IsA("WeldConstraint") then
+			local Part0 = Instance.new("ObjectValue",object)
+			Part0.Name = "Part0Object"
+			Part0.Value = object.Part0
+			local Part1 = Instance.new("ObjectValue",object)
+			Part1.Value = object.Part1
+			Part1.Name = "Part1Object"
+		end
+		if object:IsA("BasePart") then
+			pcall(function()
+				object:SetAttribute("CollisionFidelity",object.CollisionFidelity.Name)
+			end)
+		end
+	end
 end)
