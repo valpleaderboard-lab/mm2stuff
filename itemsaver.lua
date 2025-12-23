@@ -146,7 +146,7 @@ end)
 local Maps = Instance.new("Folder", Items)
 Maps.Name = "Maps"
 
-workspace.ChildAdded:Connect(function(child)
+--[[workspace.ChildAdded:Connect(function(child)
 	if child:HasTag("CurrentMap") then
 		pcall(function()
 			if not Maps:FindFirstChild(child.Name) then
@@ -175,4 +175,5 @@ workspace.ChildAdded:Connect(function(child)
 			end)
 		end
 	end
-end)
+end)]]
+		
