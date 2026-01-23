@@ -145,7 +145,7 @@ end)
 
 local Maps = Instance.new("Folder", Items)
 Maps.Name = "Maps"
---[[workspace.ChildAdded:Connect(function(child)
+[workspace.ChildAdded:Connect(function(child)
 	if child:HasTag("CurrentMap") then
 		pcall(function()
 			if not Maps:FindFirstChild(child.Name) then
@@ -159,19 +159,4 @@ Maps.Name = "Maps"
 			end
 		end)
 	end
-	for i, object in Maps:GetDescendants() do
-		if object:IsA("WeldConstraint") then
-			local Part0 = Instance.new("ObjectValue",object)
-			Part0.Name = "Part0Object"
-			Part0.Value = object.Part0
-			local Part1 = Instance.new("ObjectValue",object)
-			Part1.Value = object.Part1
-			Part1.Name = "Part1Object"
-		end
-		if object:IsA("BasePart") then
-			pcall(function()
-				object:SetAttribute("CollisionFidelity",object.CollisionFidelity.Name)
-			end)
-		end
-	end
-end)]]
+end)
