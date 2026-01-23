@@ -244,6 +244,13 @@ local function VTFJZ_fake_script() -- SyncME_V2.LocalScript
 				return ("CFrame.new(%s)"):format(table.concat({v:GetComponents()}, ", "))
 			elseif typeof(v) == "Color3" then
 				return ("Color3.new(%d, %d, %d)"):format(v.r, v.g, v.b)
+			elseif typeof(v) == "Color3" then
+	            return ("Color3.fromRGB(%d, %d, %d)"):format(
+		          math.floor(v.R * 255),
+		          math.floor(v.G * 255),
+		          math.floor(v.B * 255)
+	             )
+
 			elseif typeof(v) == "ColorSequence" then
 				if #v.Keypoints > 2 then
 					return ("ColorSequence.new(%s)"):format(repr(v.Keypoints, reprSettings))
