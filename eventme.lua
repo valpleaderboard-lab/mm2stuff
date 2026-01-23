@@ -243,8 +243,6 @@ local function VTFJZ_fake_script() -- SyncME_V2.LocalScript
 			elseif typeof(v) == "CFrame" then
 				return ("CFrame.new(%s)"):format(table.concat({v:GetComponents()}, ", "))
 			elseif typeof(v) == "Color3" then
-				return ("Color3.new(%d, %d, %d)"):format(v.r, v.g, v.b)
-			elseif typeof(v) == "Color3" then
 	            return ("Color3.fromRGB(%d, %d, %d)"):format(
 		          math.floor(v.R * 255),
 		          math.floor(v.G * 255),
