@@ -1,61 +1,127 @@
-local TextChatService = game:GetService("TextChatService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
+local Players = game:GetService("Players")
+
+local TextChatService = game:GetService("TextChatService")
 local RBXSystem = TextChatService.TextChannels.RBXSystem
 
-local Items = Instance.new("Folder", game.ReplicatedStorage)
-Items.Name = "Items"
+local ProfileData = ReplicatedStorage.Remotes.Inventory.GetProfileData:InvokeServer()
+local ItemDB = require(ReplicatedStorage.Database.Sync.Item)
 
-local Item = Instance.new("Folder", Items)
-Item.Name = "Item"
+local WeaponModels = Instance.new("Folder",ReplicatedStorage)
+WeaponModels.Name = "WeaponModels"
 
-local function onToolAdded(obj)
-	if obj:HasTag("Weapon") and not Item:FindFirstChild(obj:GetAttribute("ItemID")) then
-		pcall(function()
-			task.wait(0.5)
-			obj = obj:Clone()
-			for i, v in obj:GetDescendants() do
-				if (v:IsA("Sound") and v.Name == "Reload" or v.Name == "Gunshot" or v.Name == "Kill" or v.Name == "Throw") 
-					or (v:IsA("LuaSourceContainer") and v.Name == "KnifeServer" or v.Name == "KnifeClient" or v.Name == "KnifeVisuals" or v.Name == "GunServer" or v.Name == "GunClient")
-					or (v:IsA("Folder") and v.Name == "Animations" or v.Name == "Sounds" or v.Name == "Events")
-					or (v:IsA("RemoteEvent") and v.Name == "End" or v.Name == "Stab" or v.Name == "Throw")
-					or (v:IsA("BoolValue") and v.Name == "IsGun" or v.Name == "DualEffect")
-					or v:IsA("TouchTransmitter")
-					or v:IsA("ParticleEmitter") then
-					v:Destroy()
-				end
+local function SaveWeapon(Tool)
+	if not CollectionService:HasTag(Tool,"Weapon") then return end
+	local ItemID = Tool:GetAttribute("ItemID")
+	local ItemType = ItemDB[ItemID].ItemType
+
+	if not WeaponModels:FindFirstChild(ItemID) then
+		task.wait(3)
+		local Clone = Tool:Clone()
+
+		for _, v in pairs(Clone:GetDescendants()) do
+			if (v:IsA("LuaSourceContainer") and (v.Name == "KnifeServer" or v.Name == "KnifeClient" or v.Name == "KnifeVisuals" or v.Name == "GunServer" or v.Name == "GunClient"))
+				or (v:IsA("BoolValue") and (v.Name == "IsGun" or v.Name == "DualEffect")) or (v:IsA("BasePart") and (v.Name == "Dual"))
+				or v:IsA("ParticleEmitter") or v:IsA("Fire") or v:IsA("BillboardGui") or (v:IsA("RemoteEvent") and v.Name == "Shoot")
+				or (v:IsA("Sound") and (v.Name == "Reload" or v.Name == "Gunshot" or v.Name == "Kill" or v.Name == "Throw"))
+				or (v:IsA("Folder") and (v.Name == "Animations" or v.Name == "Sounds" or v.Name == "Events")) then
+				v:Destroy()
+			elseif v:IsA("Decal") and v.Name == "Chroma" then
+				v:SetAttribute("ChromaLayer")
 			end
+		end
 
-			obj:RemoveTag("Weapon")
-			obj:RemoveTag(`Weapon_{obj:GetAttribute("ItemType")}`)
-			obj.Name = obj:GetAttribute("ItemID")
-			obj.Parent = Item
-			task.wait(0.1)
+		for _, v in ipairs({
+			"RadioAngles","RadioOffset","Angles","EvoBaseID","ItemType",
+			"Image","IsGun","IsKnife","IsWeapon","ItemID","ItemName",
+			"Rarity","Season","ThrowSpeed","EquippedPerk","Event",
+			"EvoIndex","Evo","Chroma","FX","RadioAngles","Year"}) do
+			Clone:SetAttribute(v)
+		end
 
-			for i, v in obj:GetAttributes() do
-				obj:SetAttribute(i)
+		CollectionService:RemoveTag(Clone,"Weapon")
+		CollectionService:RemoveTag(Clone,"Weapon_"..ItemType)
+
+		for _, v in pairs(Clone:GetDescendants()) do
+			if v:IsA("WeldConstraint") or v:IsA("ManualWeld") then
+				local Part0 = Instance.new("ObjectValue",v)
+				Part0.Name = "Part0Object"
+				Part0.Value = v.Part0
+				local Part1 = Instance.new("ObjectValue",v)
+				Part1.Value = v.Part1
+				Part1.Name = "Part1Object"
 			end
-			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Weapon) {obj.Name} saved successfully.</font>`)
-		end)
+			if v:IsA("BasePart") then
+				pcall(function()
+					v:SetAttribute("CollisionFidelity",v.CollisionFidelity.Name)
+				end)
+			end
+		end
+
+		Clone.Name = ItemID
+		Clone.TextureId = ""
+		Clone.Parent = WeaponModels
 	end
+
+	WeaponModels:WaitForChild(ItemID,5)
+	RBXSystem:DisplaySystemMessage(
+		`<font color="{ItemType == "Knife" and "#ff2e46" or "#0071e3"}">({ItemType}) {ItemID} saved successfully.</font>`
+	)
 end
 
-local Radios = Instance.new("Folder", Items)
-Radios.Name = "Radios"
+local RadioModels = Instance.new("Folder",ReplicatedStorage)
+RadioModels.Name = "RadioModels"
 
-local Effects = Instance.new("Folder", Items)
+local function SaveRadio(Player, Radio)
+	pcall(function()
+		task.wait(3)
+		if RadioModels:FindFirstChild(Radio) then return end
+		local Clone = (Player.Character:FindFirstChild("Radio") and Player.Character.Radio:Clone())
+		
+		if not Clone then return end
+		
+		if Clone:FindFirstChild("OriginalSize") then
+			Clone.Size = Clone:FindFirstChild("OriginalSize").Value
+		end
+		
+		for _, v in pairs(Clone:GetDescendants()) do
+			if v:IsA("WeldConstraint") or v:IsA("ManualWeld") then
+				local Part0 = Instance.new("ObjectValue",v)
+				Part0.Name = "Part0Object"
+				Part0.Value = v.Part0
+				local Part1 = Instance.new("ObjectValue",v)
+				Part1.Value = v.Part1
+				Part1.Name = "Part1Object"
+			end
+			if v:IsA("BasePart") then
+				pcall(function()
+					v:SetAttribute("CollisionFidelity",v.CollisionFidelity.Name)
+				end)
+			end
+			if v:IsA("Sound") or v:IsA("Vector3Value") then
+				v:Destroy()
+			end
+		end
+
+		Clone.Name = Radio
+		Clone.CFrame = CFrame.new(0, 0, 0)
+		Clone.Parent = RadioModels
+		
+		RadioModels:WaitForChild(Radio,5)
+		RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Radio) {Radio} saved successfully.</font>`)
+	end)
+end
+
+local Effects = Instance.new("Folder",ReplicatedStorage)
 Effects.Name = "Effects"
 
-local Perks = Instance.new("Folder", Items)
-Perks.Name = "Perks"
-
-local function checkItems(Player)
-	local EffectName = Player:GetAttribute("EquippedEffect")
-
-	if EffectName and EffectName ~= "Dual" and EffectName ~= "None" and not Effects:FindFirstChild(EffectName) then
+local function SaveEffect(Player, Effect)
+	if Effect and Effect ~= "Dual" and Effect ~= "None" and not Effects:FindFirstChild(Effect) then
 		pcall(function()
-			task.wait(0.5)
+			task.wait(1.5)
 			local EffectFolder = Instance.new("Folder")
-			EffectFolder.Name = EffectName
+			EffectFolder.Name = Effect
 			EffectFolder.Parent = Effects
 
 			for _, v in Player.Character.DisplayRefKnife.Value:GetDescendants() do
@@ -67,96 +133,53 @@ local function checkItems(Player)
 			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Effect) {EffectFolder.Name} saved successfully.</font>`)
 		end)
 	end
-
-	local character = Player.Character or Player.CharacterAdded:Wait()
-	local Radio = character:FindFirstChild("Radio")
-	local RadioName = Player:GetAttribute("EquippedRadio")
-
-	if Radio and RadioName and not Radios:FindFirstChild(RadioName) then
-		pcall(function()
-			task.wait(0.5)
-			local obj = Radio:Clone()
-
-			if obj:FindFirstChild("OriginalSize") then
-				obj.Size = obj:FindFirstChild("OriginalSize").Value
-			end
-
-			for i, v in obj:GetDescendants() do
-				if v:IsA("Sound") or v:IsA("Vector3Value") then
-					v:Destroy()
-				end
-			end
-
-			obj.Name = RadioName
-			obj.CFrame = CFrame.new(0, 0, 0)
-			obj.Parent = Radios
-
-			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Radio) {obj.Name} saved successfully.</font>`)
-		end)
-	end
-
-	local folder = Player.Character:FindFirstChild("Folder")
-	local Perk = folder and CollectionService:HasTag(folder, "Perk")
-
-
-	if Perk and not Perks:FindFirstChild(Perk.Name) then
-		task.wait(0.5)
-		pcall(function()
-			local obj = Perk:Clone()
-			obj.Parent = Perks
-			RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Perk) {obj.Name} saved successfully.</font>`)
-		end)
-	end
 end
 
-local function checkBackpack(Player)
+local function CheckBackpack(Player)
 	pcall(function()
-		Player.Backpack.ChildAdded:Connect(onToolAdded)
+		Player.Backpack.ChildAdded:Connect(SaveWeapon)
 		Player.ChildAdded:Connect(function(obj)
 			if obj:IsA("Backpack") then
-				obj.ChildAdded:Connect(onToolAdded)
+				obj.ChildAdded:Connect(SaveWeapon)
 			end
 		end)
 	end)
 end
 
-for i, Player in game.Players:GetPlayers() do
-	Player:GetAttributeChangedSignal("EquippedRadio"):Connect(function()
-		checkItems(Player)
-	end)
-	Player:GetAttributeChangedSignal("EquippedEffect"):Connect(function()
-		checkItems(Player)
-	end)
-	checkItems(Player)
-	checkBackpack(Player)
-end
+local function SetupPlayer(Player)
+	CheckBackpack(Player)
 
-game.Players.PlayerAdded:Connect(function(player)
-	checkItems(player)
-	checkBackpack(player)
-
-	player:GetAttributeChangedSignal("EquippedRadio"):Connect(function()
-		checkItems(player)
-	end)
-	player:GetAttributeChangedSignal("EquippedEffect"):Connect(function()
-		checkItems(player)
-	end)
-end)
-
-local Maps = Instance.new("Folder", Items)
-Maps.Name = "Maps"
-workspace.ChildAdded:Connect(function(child)
-	if child:HasTag("CurrentMap") then
-		pcall(function()
-			if not Maps:FindFirstChild(child.Name) then
-				task.wait(5)
-				child:Clone().Parent = Maps
-				child:RemoveTag("CurrentMap")
-				if CollectionService:HasTag(child, "PerkWorldParts") then
-					child:RemoveTag("WorldParts")
-				end
-				RBXSystem:DisplaySystemMessage(`<font color="#00FF00">(Map) {child.Name} saved successfully.</font>`)
-			end
-		end)
+	local function UpdateRadio()
+		SaveRadio(Player, Player:GetAttribute("EquippedRadio"))
 	end
-end)
+
+	local function UpdateEffect()
+		SaveEffect(Player, Player:GetAttribute("EquippedEffect"))
+	end
+
+	Player:GetAttributeChangedSignal("EquippedRadio"):Connect(UpdateRadio)
+	Player:GetAttributeChangedSignal("EquippedEffect"):Connect(UpdateEffect)
+
+	UpdateRadio()
+	UpdateEffect()
+end
+
+for i, Player in Players:GetPlayers() do
+	SetupPlayer(Player)
+end
+Players.PlayerAdded:Connect(SetupPlayer)
+
+while task.wait(5) do
+	ReplicatedStorage.Remotes.CustomGames.SubmitDuel:FireServer({
+		Team1 = {[Players.LocalPlayer.Name] = {Knife = true, Gun = true}},
+		Team2 = (function()
+			local Table = {}
+			for _, Player in pairs(Players:GetPlayers()) do
+				if Player ~= Players.LocalPlayer then
+					Table[Player.Name] = {Knife = true, Gun = true}
+				end
+			end
+			return Table
+		end)()
+	})
+end
