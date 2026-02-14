@@ -2,6 +2,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 
+Players.LocalPlayer.PlayerScripts.WeaponVisuals.ChromaScript.Enabled = false
+
 local TextChatService = game:GetService("TextChatService")
 local RBXSystem = TextChatService.TextChannels.RBXSystem
 
